@@ -302,6 +302,8 @@ ul.list{list-style:none;margin:0;padding:0}
 .tag.surplus{color:var(--send);border-color:color-mix(in srgb,var(--send) 50%,var(--line))}
 .fh{font:800 24px/1 var(--font-d);margin:4px 0 6px}
 .fp{margin:0 0 12px;color:var(--muted);font-size:13.5px;max-width:64ch}
+.pos-chips.goals{margin-bottom:2px}
+#findCtl>.set{margin-bottom:10px}
 .frow{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:10px}
 @media(min-width:760px){.frow{grid-template-columns:1fr 2fr}}
 .frow .lab,.frow label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);margin-bottom:5px}
@@ -499,8 +501,9 @@ ul.list{list-style:none;margin:0;padding:0}
 
   <main id="view-find" role="tabpanel" aria-labelledby="tab-find" hidden>
     <h3 class="fh">Find me a trade</h3>
-    <p class="fp">Searches every team for trades that improve both rosters and stay within 12% of market value. It uses your league’s lineup slots, the bench setting and each team’s mode (set them in the League tab).</p>
+    <p class="fp">Searches every team for trades both sides would take, close to market value. It uses your league’s lineup slots, the bench setting and each team’s mode. Pick what you’re after first.</p>
     <div id="findCtl" hidden>
+      <div class="set"><span class="lab">What are you looking for?</span><div class="pos-chips goals" id="fgChips" role="group" aria-label="Trade goal"></div><p class="hint" id="fgDesc"></p></div>
       <div class="frow">
         <div class="set"><label for="fpSel">Trade partner</label><select id="fpSel"></select></div>
         <div class="set"><span class="lab">I want to receive</span><div class="pos-chips" id="fwChips" role="group" aria-label="Position to receive"></div></div>
@@ -571,9 +574,16 @@ ul.list{list-style:none;margin:0;padding:0}
       <li><b>Roster fit</b> (after you import a Sleeper league): each team's best lineup is filled from your league's real starting slots. A player's fit value is what he adds to the roster receiving him: starters add close to full value. Bench players earn a share of it (20%, 40% or 60%, your choice), with diminishing credit for deeper backups at the same position (1st backup 100%, 2nd 70%, 3rd 45%, 4th and beyond 25%). So a third quarterback on a team that already has two is worth much less than a first backup. Draft picks always count at market value, and the depth discount is off in this mode. Each team’s picks come from Sleeper (own picks plus any traded picks), with early, mid or late projected from that team’s lineup strength, so weaker teams’ picks are worth more.</li>
       <li><b>Commentary</b>: the one-liner under the grade is picked at random from a pool for that grade band, so the same trade can get a different take (tap Another take). Choose Off, Clean or Spicy in the settings.</li>
       <li><b>Skinky grade</b>: every trade gets a score from 0 (skunkiest) to 100 (skinkiest) from your side of the table, shown on the sliding scale. It blends how the value balances (what you get against what you send) with what the trade does to your roster when a league is imported. Beyond a 35% swing it maxes out. Their side gets its own grade in the roster-fit panel.</li>
-      <li><b>Team modes</b>: each team starts in a mode inferred from roster strength alone (top third of the league by lineup value Contend, bottom third Rebuild, the rest Balanced; win-loss records aren’t used), and you can override any team. The mode changes how a team values what it receives, and only applies in Roster-fit mode. <b>Contend</b>: young players (adjusted age 23 or under) ×0.75, picks ×0.75, veterans (adjusted age 27 or older) ×1.05, starting-lineup upgrades ×1.10 and bench depth ×0.85. <b>Rebuild</b>: young QB ×1.30, WR ×1.15, TE ×1.15 (adjusted age 23 or under); adjusted age 24 to 25 ×1.05, 26 ×1.00, 27 ×0.90, 28 ×0.80, older ×0.65; picks ×1.15; lineup upgrades ×0.90 and bench depth ×1.20. Running backs get their own, steeper curve for rebuilding teams by real age: 22 and under ×1.00, 23 ×0.90, 24 ×0.80, 25 ×0.68, 26 ×0.55, 27 and older ×0.40. Adjusted age shifts by position first: quarterbacks count 3 years younger, tight ends 1 year younger, running backs 1.5 years older, wide receivers unchanged.</li>
+      <li><b>Team modes</b>: each team starts in a mode inferred from roster strength alone (top third of the league by lineup value Contend, bottom third Rebuild, the rest Balanced; win-loss records aren’t used), and you can override any team. The mode changes how a team values what it receives. <b>Retool</b> (never set automatically): picks ×1.10, adjusted age 24 or under ×1.08, 28 or older ×0.85, bench depth ×1.05. and only applies in Roster-fit mode. <b>Contend</b>: young players (adjusted age 23 or under) ×0.75, picks ×0.75, veterans (adjusted age 27 or older) ×1.05, starting-lineup upgrades ×1.10 and bench depth ×0.85. <b>Rebuild</b>: young QB ×1.30, WR ×1.15, TE ×1.15 (adjusted age 23 or under); adjusted age 24 to 25 ×1.05, 26 ×1.00, 27 ×0.90, 28 ×0.80, older ×0.65; picks ×1.15; lineup upgrades ×0.90 and bench depth ×1.20. Running backs get their own, steeper curve for rebuilding teams by real age: 22 and under ×1.00, 23 ×0.90, 24 ×0.80, 25 ×0.68, 26 ×0.55, 27 and older ×0.40. Adjusted age shifts by position first: quarterbacks count 3 years younger, tight ends 1 year younger, running backs 1.5 years older, wide receivers unchanged.</li>
       <li><b>Market signals</b>: a player is flagged Sell high after a 12% or larger rise in four weeks, or when he’s at his peak value past his prime age. Buy low means a 12% or larger drop in four weeks, or a young player far below his peak. Rough screens, not predictions.</li>
-      <li><b>Trade finder</b>: tries 1-for-1, 2-for-1, 1-for-2 and 2-for-2 packages from each roster’s top assets, keeps ones within 12% of market value where both rosters gain, and ranks them by your gain.</li>
+      <li><b>Trade finder</b>: tries packages of up to two or three assets from each roster’s top players and picks, and keeps only trades the other team’s roster gains from. Goals change what it looks for:
+        <ul>
+          <li><b>Best fit</b>: within 12% of market value, both rosters gain, ranked by your gain.</li>
+          <li><b>Stud finder</b>: you get one player from about the top three per team in value who would start for you, sending up to three assets and paying up to 20% over market; ranked by how much your starting lineup improves. Your side is valued as a contender.</li>
+          <li><b>Retool</b>: what you receive is mostly draft picks (at least half its value), you don’t send picks or your young core, you gain future value, and your starting lineup drops no more than 6%. Your side is valued with the Retool mode.</li>
+          <li><b>Blow it up</b>: you send at least one player who isn’t young and no picks, receive at least one pick, with picks and young players making up most of what comes back (up to three assets), and gain plenty of future value however much your lineup drops; more picks rank higher. Your side is valued as a rebuilding team.</li>
+        </ul>
+        Young means adjusted age 24 or under. Future value counts picks in full and young players at half, since they help now too. Loading a goal trade into the calculator sets your team to that goal’s mode.</li>
       <li><b>Depth discount</b>: on each side, assets are sorted high to low, and the 2nd counts 92%, the 3rd 84%, and so on down to a 60% floor.</li>
       <li>Values don't reflect injuries or news after each snapshot. Use it as a starting point for a negotiation, not a verdict.</li>
     </ul>
@@ -606,7 +616,7 @@ A.forEach((a,i)=>IDX[a.id]=i);
 const SL={};D.players.forEach((p,i)=>{if(p[10])SL[p[10]]=i});
 
 /* ---------- state ---------- */
-const S={sf:true,ppr:1,tep:0,dep:true,wi:LAST,give:[],get:[],tab:'trade',q:{give:'',get:''},pk:{give:{year:null,rd:1},get:{year:null,rd:1}},rq:'',pos:'ALL',sort:'value',limit:60,open:null,basis:'fit',beta:0.4,quip:'spicy',me:null,them:null,modes:{},lgState:{},audit:null,fPartner:'ALL',fPos:'ANY',vsrc:'avg'};
+const S={sf:true,ppr:1,tep:0,dep:true,wi:LAST,give:[],get:[],tab:'trade',q:{give:'',get:''},pk:{give:{year:null,rd:1},get:{year:null,rd:1}},rq:'',pos:'ALL',sort:'value',limit:60,open:null,basis:'fit',beta:0.4,quip:'spicy',me:null,them:null,modes:{},lgState:{},audit:null,fPartner:'ALL',fPos:'ANY',fGoal:'fit',vsrc:'avg'};
 let LGS={active:null,list:{}},LG=null,LEGACY=null;
 try{
   const j=JSON.parse(localStorage.getItem('dtc.v1')||'{}');
@@ -777,7 +787,7 @@ function slotsOf(){
   if(L&&L.slots)return L.slots;
   return{QB:1,RB:2,WR:2,TE:1,FLEX:1,SUPER_FLEX:S.sf?1:0,REC_FLEX:0,WRRB_FLEX:0};
 }
-const MODE_NAMES={contend:'Contend',balance:'Balanced',rebuild:'Rebuild'};
+const MODE_NAMES={contend:'Contend',balance:'Balanced',retool:'Retool',rebuild:'Rebuild'};
 // Teams without a manual mode get one inferred from roster strength alone (no win-loss records):
 // top third of the league by lineup value = Contend, bottom third = Rebuild, the rest = Balanced.
 function autoModes(){
@@ -789,10 +799,16 @@ function autoModes(){
   return AUTO;
 }
 function isManual(tid){return tid!=null&&!!S.modes[String(tid)]}
-function modeOf(tid){if(tid==null)return'balance';return S.modes[String(tid)]||autoModes()[String(tid)]||'balance'}
+let FGOAL_ME=null; // while the Finder runs a goal, your team is valued with that goal's mode
+function modeOf(tid){if(tid==null)return'balance';if(FGOAL_ME&&String(tid)===String(S.me))return FGOAL_ME;return S.modes[String(tid)]||autoModes()[String(tid)]||'balance'}
 function effAge(a){if(a.age==null)return null;return a.pos==='QB'?a.age-3:(a.pos==='TE'?a.age-1:(a.pos==='RB'?a.age+1.5:a.age))}
 function modeMult(mode,a){
   if(!mode||mode==='balance')return 1;
+  if(mode==='retool'){ // keep the core, tilt toward picks and youth, shed aging pieces
+    if(a.kind==='K')return 1.10;
+    const e0=effAge(a);if(e0==null)return 1;
+    return e0<=24?1.08:(e0>=28?0.85:1);
+  }
   if(a.kind==='K')return mode==='rebuild'?1.15:0.75;
   if(mode==='rebuild'&&a.pos==='RB'){
     const g=a.age;if(g==null)return 1;
@@ -806,7 +822,7 @@ function modeMult(mode,a){
   }
   return e<=23?0.75:(e>=27?1.05:1);
 }
-const LAM={contend:1.10,balance:1,rebuild:0.90},GAM={contend:0.85,balance:1,rebuild:1.20},BW=[1,0.70,0.45,0.25];
+const LAM={contend:1.10,balance:1,retool:1,rebuild:0.90},GAM={contend:0.85,balance:1,retool:1.05,rebuild:1.20},BW=[1,0.70,0.45,0.25];
 function lineup(set,w,tid){
   const items=[],mode=tid==null?'balance':modeOf(tid);
   set.forEach(i=>{const v=M[i][w];if(v!=null&&A[i].kind==='P')items.push({i,pos:A[i].pos,v:v*modeMult(mode,A[i])})});
@@ -1295,8 +1311,12 @@ function renderRosterPickers(){
   });
 }
 /* ---------- valuation breakdown ---------- */
-const MODE_ADJ={contend:'contending',balance:'balanced',rebuild:'rebuilding'};
+const MODE_ADJ={contend:'contending',balance:'balanced',retool:'retooling',rebuild:'rebuilding'};
 function modeReason(mode,a){
+  if(mode==='retool'){
+    if(a.kind==='K')return'retooling teams value picks at 110%';
+    return effAge(a)<=24?'young players are worth a bit more to a retooling team':'aging players are discounted for a retooling team';
+  }
   if(a.kind==='K')return mode==='rebuild'?'rebuilding teams value picks at 115%':'contenders value picks at 75%';
   const e=effAge(a);
   if(mode==='rebuild'){
@@ -1613,8 +1633,16 @@ function renderSignals(){
 }
 
 /* ---------- trade finder ---------- */
-const FIND={sig:'',res:null,busy:false};
-function findSig(){return JSON.stringify([S.sf,S.ppr,S.tep,S.wi,S.me,S.beta,S.modes,LG&&LG.key,S.fPartner,S.fPos])}
+const FIND={sig:'',res:null,busy:false,goal:'fit'};
+const GOALS={
+  fit:{name:'Best fit',mode:null,desc:'Trades that help both rosters, valued with your team’s current mode.'},
+  stud:{name:'Stud finder',mode:'contend',desc:'Package depth and picks for one elite starter to put you over the top. Your side is valued like a contender, and you may pay up to 20% over market for the star.'},
+  retool:{name:'Retool',mode:'retool',desc:'Keep most of your starting lineup, but turn aging or spare pieces into draft picks and young players.'},
+  blowup:{name:'Blow it up',mode:'rebuild',desc:'Sell veterans for young players and as many picks as you can, even if you’re contending today. Your side is valued like a rebuilding team.'}
+};
+function findSig(){return JSON.stringify([S.sf,S.ppr,S.tep,S.wi,S.me,S.beta,S.modes,LG&&LG.key,S.fPartner,S.fPos,S.fGoal])}
+function isYoung(a){return a.kind==='K'||(a.age!=null&&effAge(a)<=24)}
+function isVet(a){return a.kind==='P'&&a.age!=null&&effAge(a)>=27}
 function heldAssets(tid,w){
   const out=[],set=teamSet(tid);
   [...set].filter(i=>M[i][w]!=null&&M[i][w]>=300).sort((a,b)=>M[b][w]-M[a][w]).slice(0,11).forEach(i=>out.push({id:A[i].id,i,k:'P',v:M[i][w]}));
@@ -1623,55 +1651,98 @@ function heldAssets(tid,w){
   picks.sort((a,b)=>b.v-a.v).slice(0,5).forEach(x=>out.push(x));
   return out;
 }
-function subsets(arr){const r=[];for(let a=0;a<arr.length;a++){r.push([arr[a]]);for(let b=a+1;b<arr.length;b++)r.push([arr[a],arr[b]])}return r}
-function evalPartner(r,myAssets,mySet,preY,w,pos){
+function subsets(arr,max){max=max||2;const r=[];for(let a=0;a<arr.length;a++){r.push([arr[a]]);if(max<2)continue;for(let b=a+1;b<arr.length;b++){r.push([arr[a],arr[b]]);if(max<3)continue;for(let c=b+1;c<arr.length;c++)r.push([arr[a],arr[b],arr[c]])}}return r}
+function evalPartner(r,myAssets,mySet,preY,w,pos,goal,studVal){
   const themSet=teamSet(r.id),preT=lineup(themSet,w,r.id),their=heldAssets(r.id,w),me=S.me;
-  const gives=subsets(myAssets),gets=subsets(their),found=[];
-  const mm=(x,tid)=>modeMult(modeOf(tid),A[x.i]);
-  for(const g of gives){
-    let gM=0;g.forEach(x=>gM+=x.v);
-    for(const t of gets){
-      let tM=0;t.forEach(x=>tM+=x.v);
+  // future value: picks count in full, young players at half (they help now and later)
+  const tag=arr=>{let m=0,pkV=0,yV=0,pk=0,old=false,stud=null;arr.forEach(x=>{const a=A[x.i];m+=x.v;if(x.k==='K'){pkV+=x.v;pk++}else if(isYoung(a))yV+=x.v;else old=true;if(x.k==='P'&&x.v>=studVal&&(!stud||x.v>stud.v))stud=x});return{arr,m,f:pkV+0.5*yV,pkV,yV,pk,old,stud,key:arr.map(x=>x.id).sort().join('|')}};
+  let gives=subsets(myAssets,goal==='stud'?3:2).map(tag),gets=subsets(their,goal==='retool'||goal==='blowup'?3:2).map(tag);
+  if(goal==='stud')gets=gets.filter(t=>t.stud&&t.arr.length<=2);
+  if(goal==='retool')gets=gets.filter(t=>t.pk>=1&&t.pkV>=0.5*t.m);   // mostly picks
+  if(goal==='blowup')gets=gets.filter(t=>t.pk>=1&&t.pkV+t.yV>=0.75*t.m); // picks plus young players
+  if(goal==='retool'||goal==='blowup')gives=gives.filter(g=>g.pk===0); // you're collecting picks, not spending them
+  if(goal==='blowup')gives=gives.filter(g=>g.old);
+  if(goal==='retool')gives=gives.filter(g=>g.arr.every(x=>x.k==='K'||!isYoung(A[x.i])||x.v<0.5*studVal));
+  const found=[],mm=(x,tid)=>modeMult(modeOf(tid),A[x.i]);
+  const overpay=goal==='stud'?0.20:(goal==='fit'?0.12:0.15);
+  for(const G of gives){
+    const g=G.arr,gM=G.m;
+    for(const T of gets){
+      const t=T.arr,tM=T.m;
       const big=Math.max(gM,tM);if(big<600)continue;
-      if(Math.abs(tM-gM)/big>0.12)continue;
+      if((tM-gM)/big>0.12||(gM-tM)/big>overpay)continue;
       if(!g.some(x=>x.k==='P')&&!t.some(x=>x.k==='P'))continue;
       if(pos==='PICK'){if(!t.some(x=>x.k==='K'))continue}
       else if(pos!=='ANY'&&!t.some(x=>x.k==='P'&&A[x.i].pos===pos))continue;
+      const futNet=T.f-G.f;
+      if(goal==='retool'&&futNet<Math.max(300,0.12*big))continue;
+      if(goal==='blowup'&&futNet<Math.max(400,0.2*big))continue;
       const yA=new Set(mySet),tA=new Set(themSet);
       let yIn=0,yOut=0,tIn=0,tOut=0;
       g.forEach(x=>{if(x.k==='P'){yA.delete(x.i);tA.add(x.i)}else{yOut+=x.v*mm(x,me);tIn+=x.v*mm(x,r.id)}});
       t.forEach(x=>{if(x.k==='P'){tA.delete(x.i);yA.add(x.i)}else{yIn+=x.v*mm(x,me);tOut+=x.v*mm(x,r.id)}});
-      const netY=lineup(yA,w,me).T-preY.T+yIn-yOut;
-      if(netY<Math.max(150,0.03*big))continue;
+      const luY=lineup(yA,w,me),netY=luY.T-preY.T+yIn-yOut,dL=luY.L-preY.L;
+      let score;
+      if(goal==='stud'){
+        if(!luY.starters.has(T.stud.i))continue;
+        if(dL<Math.max(200,0.02*preY.L)||netY<-0.05*big)continue;
+        score=dL+0.25*netY;
+      }else if(goal==='retool'){
+        if(dL<-0.06*preY.L||netY<-0.03*big)continue;
+        score=futNet+0.5*netY+0.5*dL;
+      }else if(goal==='blowup'){
+        if(netY<0)continue;
+        score=futNet+0.3*T.pkV+0.5*netY;
+      }else{
+        if(netY<Math.max(150,0.03*big))continue;
+        score=0;
+      }
       const netT=lineup(tA,w,r.id).T-preT.T+tIn-tOut;
       if(netT<Math.max(100,0.02*big))continue;
-      found.push({partner:r.id,give:g,get:t,netY,netT,mktG:gM,mktT:tM,score:netY+0.6*netT});
+      if(goal==='fit')score=netY+0.6*netT;
+      found.push({partner:r.id,give:g,get:t,netY,netT,mktG:gM,mktT:tM,score,dL,preL:preY.L,futIn:T.f,futOut:G.f,stud:T.stud,goal});if(found.length>400){found.sort((a,b)=>b.score-a.score);found.length=50}
     }
   }
   found.sort((a,b)=>b.score-a.score);
-  return found.slice(0,3);
+  // keep variety: no two results from this team that send the same package or ask for the same one
+  const out=[],gk=new Set(),tk=new Set(),key=a=>a.map(x=>x.id).sort().join('|');
+  for(const f of found){const a=key(f.give),b=key(f.get);if(gk.has(a)||tk.has(b))continue;gk.add(a);tk.add(b);out.push(f);if(out.length>=3)break}
+  return out;
 }
 function reasonText(x,w){
   const me=S.me,th=x.partner,mySet=teamSet(me),themSet=teamSet(th);
   const yA=new Set(mySet),tA=new Set(themSet);
   x.give.forEach(a=>{if(a.k==='P'){yA.delete(a.i);tA.add(a.i)}});x.get.forEach(a=>{if(a.k==='P'){tA.delete(a.i);yA.add(a.i)}});
   const d=(pre,post)=>{const ups=[];['QB','RB','WR','TE'].forEach(p=>{const v=(post.byPos[p]||0)-(pre.byPos[p]||0);if(v>=300)ups.push(p+' '+sg(v))});return ups};
-  const yu=d(lineup(mySet,w,me),lineup(yA,w,me)),tu=d(lineup(themSet,w,th),lineup(tA,w,th));
-  return'You get stronger'+(yu.length?' at '+yu.join(', '):' in depth and pick value')+'. '+esc(teamName(rosterOf(th)))+' gets stronger'+(tu.length?' at '+tu.join(', '):' in depth and pick value')+'.';
+  const tu=d(lineup(themSet,w,th),lineup(tA,w,th)),pn=esc(teamName(rosterOf(th)));
+  const them=pn+' gets stronger'+(tu.length?' at '+tu.join(', '):' in depth and pick value')+'.';
+  const lpct=x.preL?Math.round(x.dL/x.preL*100):0;
+  const cnt=arr=>{const pk=arr.filter(a=>a.k==='K').length,yg=arr.filter(a=>a.k==='P'&&isYoung(A[a.i])).length,b=[];if(pk)b.push(pk+' pick'+(pk>1?'s':''));if(yg)b.push(yg+' young player'+(yg>1?'s':''));return b.join(' and ')};
+  if(x.goal==='stud')return'Lands '+esc(A[x.stud.i].name)+' as a starter: your starting lineup '+sg(x.dL)+' ('+(lpct>0?'+':'')+lpct+'%). '+them;
+  if(x.goal==='retool'||x.goal==='blowup'){
+    const vets=x.give.filter(a=>a.k==='P'&&!isYoung(A[a.i])).map(a=>esc(A[a.i].name));
+    return'Brings in '+(cnt(x.get)||'future value')+' (future value '+sg(x.futIn-x.futOut)+')'+(vets.length?' for '+vets.join(' and '):'')+'. Your starting lineup '+sg(x.dL)+' ('+(lpct>0?'+':'')+lpct+'%). '+them;
+  }
+  const yu=d(lineup(mySet,w,me),lineup(yA,w,me));
+  return'You get stronger'+(yu.length?' at '+yu.join(', '):' in depth and pick value')+'. '+them;
 }
 async function runFind(){
   if(FIND.busy)return;
-  FIND.busy=true;FIND.res=null;FIND.sig=findSig();renderFindRes();
+  FIND.busy=true;FIND.res=null;FIND.sig=findSig();renderFindRes();await new Promise(res=>setTimeout(res,0));
+  const goal=S.fGoal||'fit';FIND.goal=goal;FGOAL_ME=GOALS[goal].mode;
+  try{
   const w=S.wi,me=S.me,mySet=teamSet(me),preY=lineup(mySet,w,me),myAssets=heldAssets(me,w);
+  const pv=[];for(let i=0;i<A.length;i++)if(A[i].kind==='P'&&M[i][w]!=null)pv.push(M[i][w]);pv.sort((a,b)=>b-a);
+  const studVal=pv[Math.min(pv.length-1,Math.max(24,Math.round(LG.rosters.length*3)))]||5000; // roughly the top 3 players per team
   const teams=LG.rosters.filter(r=>String(r.id)!==String(me)&&(S.fPartner==='ALL'||String(r.id)===String(S.fPartner)));
   let all=[];
   for(const r of teams){
     await new Promise(res=>setTimeout(res,0));
-    all=all.concat(evalPartner(r,myAssets,mySet,preY,w,S.fPos));
+    all=all.concat(evalPartner(r,myAssets,mySet,preY,w,S.fPos,goal,studVal));
   }
   all.sort((a,b)=>b.score-a.score);
   FIND.res=all.slice(0,12).map(x=>{x.why=reasonText(x,w);return x});
-  FIND.busy=false;
+  }finally{FGOAL_ME=null;FIND.busy=false}
   if(S.tab==='find')renderFindRes();
 }
 function assetLI(x){
@@ -1686,9 +1757,11 @@ function renderFindRes(){
   if(FIND.busy){el.innerHTML='<div class="empty">Searching the league\u2026</div>';return}
   if(!FIND.res){el.innerHTML='<div class="empty">Tap Find trades. Results use your current format, week, bench setting and team modes.</div>';return}
   if(!FIND.res.length){el.innerHTML='<div class="empty">No trades found that help both rosters within 12% of market value. Try another partner or position, or change the team modes.</div>';return}
-  el.innerHTML=FIND.res.map((x,k)=>{const r=rosterOf(x.partner),big=Math.max(x.mktG,x.mktT),pct=Math.round((x.mktT-x.mktG)/big*100);
+  const gl=FIND.goal!=='fit'?'<p class="fp">'+esc(GOALS[FIND.goal].name)+' results. Your side is valued '+(GOALS[FIND.goal].mode?'as a '+MODE_NAMES[GOALS[FIND.goal].mode].toLowerCase()+' team':'with your current mode')+'; loading one sets your team to that mode.</p>':'';
+  el.innerHTML=gl+FIND.res.map((x,k)=>{const r=rosterOf(x.partner),big=Math.max(x.mktG,x.mktT),pct=Math.round((x.mktT-x.mktG)/big*100);
+    const extra=x.goal==='stud'?'<span class="u">Starting lineup '+sg(x.dL)+'</span>':((x.goal==='retool'||x.goal==='blowup')?'<span class="u">Future value '+sg(x.futIn-x.futOut)+'</span>':'');
     const gY=gradeFrom((x.mktT-x.mktG)/big,x.netY/big),gT=gradeFrom(-(x.mktT-x.mktG)/big,x.netT/big);
-    return'<article class="tcard"><div class="th"><b>'+esc(teamName(r))+'</b><span class="nets"><span class="u">Your roster '+sg(x.netY)+'</span><span class="u">Theirs '+sg(x.netT)+'</span></span></div>'
+    return'<article class="tcard"><div class="th"><b>'+esc(teamName(r))+'</b><span class="nets">'+extra+'<span class="u">Your roster '+sg(x.netY)+'</span><span class="u">Theirs '+sg(x.netT)+'</span></span></div>'
      +'<div class="gr"><span class="gname" style="color:'+gradeColor(gY.score)+'">'+gY.label+' ('+Math.round(gY.score)+')</span><small>They\u2019d say: '+gT.label+'</small></div>'+miniScale(gY)
      +'<div class="tcols"><div><h5>You send</h5><ul>'+x.give.map(assetLI).join('')+'</ul></div><div><h5>You get</h5><ul>'+x.get.map(assetLI).join('')+'</ul></div></div>'
      +'<p class="why">'+x.why+'</p><div class="ts"><span>Market '+nf(x.mktG)+' out, '+nf(x.mktT)+' in ('+(pct>0?'+':'')+pct+'%)</span><button class="btn" data-act="load-trade" data-i="'+k+'">Load in calculator</button></div></article>'}).join('');
@@ -1700,6 +1773,8 @@ function renderFind(){
   if(ready){
     if(S.fPartner!=='ALL'&&!rosterOf(S.fPartner))S.fPartner='ALL';
     $('fpSel').innerHTML='<option value="ALL">Any team</option>'+LG.rosters.filter(r=>String(r.id)!==String(S.me)).map(r=>'<option value="'+r.id+'"'+(String(S.fPartner)===String(r.id)?' selected':'')+'>'+esc(teamName(r))+'</option>').join('');
+    $('fgChips').innerHTML=Object.keys(GOALS).map(g=>'<button class="pc'+(S.fGoal===g?' on':'')+'" data-act="fgoal" data-val="'+g+'" aria-pressed="'+(S.fGoal===g)+'">'+GOALS[g].name+'</button>').join('');
+    $('fgDesc').textContent=GOALS[S.fGoal].desc;
     $('fwChips').innerHTML=['ANY','QB','RB','WR','TE','PICK'].map(p=>'<button class="pc'+(S.fPos===p?' on':'')+'" data-act="fpos" data-val="'+p+'" aria-pressed="'+(S.fPos===p)+'">'+(p==='ANY'?'Anything':(p==='PICK'?'Picks':p))+'</button>').join('');
   }
   renderFindRes();renderSignals();
@@ -1822,8 +1897,9 @@ document.addEventListener('click',e=>{
     case'mode':S.modes[String(id)]=val;save();renderAll();break;
     case'mode-auto':delete S.modes[String(id)];save();renderAll();break;
     case'fpos':S.fPos=val;renderFind();break;
+    case'fgoal':S.fGoal=val;renderFind();break;
     case'find-go':runFind();break;
-    case'load-trade':{const x=FIND.res&&FIND.res[+t.dataset.i];if(!x)break;S.give=x.give.map(a=>a.id);S.get=x.get.map(a=>a.id);S.them=x.partner;save();setTab('trade');renderAll();try{window.scrollTo(0,0)}catch(e){}break}
+    case'load-trade':{const x=FIND.res&&FIND.res[+t.dataset.i];if(!x)break;S.give=x.give.map(a=>a.id);S.get=x.get.map(a=>a.id);S.them=x.partner;if(x.goal&&GOALS[x.goal].mode)S.modes[String(S.me)]=GOALS[x.goal].mode;save();setTab('trade');renderAll();try{window.scrollTo(0,0)}catch(e){}break}
     case'sig-add':{
       const bi=IDX[id];
       if(side==='get'&&LG&&OWN.get(bi)!==undefined&&String(OWN.get(bi))!==String(S.me)){S.them=OWN.get(bi)}
