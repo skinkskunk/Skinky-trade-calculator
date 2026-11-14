@@ -1,0 +1,28 @@
+name: Update trade values
+
+on:
+  schedule:
+    - cron: '17 11 * * *'   # every day, about 7:17 AM Eastern
+  workflow_dispatch:         # lets you run it by hand from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pull values from each site
+        run: python update_values.py
+      - name: Save if anything changed
+        run: |
+          for f in values.json stats.json history.json; do if [ -f "$f" ]; then git add "$f"; fi; done
+          if git diff --cached --quiet; then echo "No changes"; exit 0; fi
+          git config user.name "values-bot"
+          git config user.email "values-bot@users.noreply.github.com"
+          git commit -m "Update trade values $(date -u +%F)"
+          git push
